@@ -1,0 +1,530 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Dashboard Comercial SAP</title>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                    padding: 30px;
+                }
+                .container { max-width: 1400px; margin: 0 auto; }
+                h1 { 
+                    color: white; 
+                    margin-bottom: 30px; 
+                    font-size: 2.5em;
+                    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+                }
+                .periodo {
+                    color: rgba(255,255,255,0.9);
+                    font-size: 1.1em;
+                    margin-bottom: 30px;
+                }
+                .grid { 
+                    display: grid; 
+                    grid-template-columns: repeat(4, 1fr); 
+                    gap: 25px; 
+                    margin-bottom: 30px;
+                }
+                .card { 
+                    background: white; 
+                    padding: 25px; 
+                    border-radius: 15px; 
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                    transition: transform 0.3s;
+                }
+                .card:hover { transform: translateY(-5px); }
+                .card h3 { 
+                    color: #764ba2; 
+                    font-size: 1.1em; 
+                    margin-bottom: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+                .card .valor { 
+                    font-size: 2.2em; 
+                    font-weight: bold; 
+                    color: #333;
+                    margin-bottom: 5px;
+                }
+                .card .sub { color: #666; font-size: 0.9em; }
+                .card.destaque { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+                .card.destaque h3, .card.destaque .valor, .card.destaque .sub { color: white; }
+                
+                .charts-container {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 25px;
+                    margin-bottom: 30px;
+                }
+                .chart-card {
+                    background: white;
+                    padding: 20px;
+                    border-radius: 15px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                }
+                .chart-card h2 {
+                    color: #764ba2;
+                    margin-bottom: 20px;
+                    font-size: 1.3em;
+                }
+                
+                .tabela-container {
+                    background: white;
+                    padding: 25px;
+                    border-radius: 15px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                    margin-bottom: 30px;
+                    overflow-x: auto;
+                }
+                .tabela-container h2 {
+                    color: #764ba2;
+                    margin-bottom: 20px;
+                    font-size: 1.3em;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                th {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 12px;
+                    font-weight: 500;
+                    text-align: left;
+                }
+                td {
+                    padding: 12px;
+                    border-bottom: 1px solid #e0e0e0;
+                }
+                tr:hover { background-color: #f5f5f5; }
+                .positivo { color: #28a745; font-weight: bold; }
+                .negativo { color: #dc3545; font-weight: bold; }
+                
+                .info-adicional {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 25px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📊 Dashboard Comercial - SAP B1</h1>
+                <div class="periodo">📅 Período: 01/02/2026 a 19/02/2026</div>
+                
+                <div class="grid">
+                    <div class="card destaque">
+                        <h3>💰 Faturamento Total</h3>
+                        <div class="valor">R$ 31,022.13</div>
+                        <div class="sub">75 itens vendidos</div>
+                    </div>
+                    <div class="card">
+                        <h3>📈 Lucro Bruto</h3>
+                        <div class="valor positivo">R$ 31,022.13</div>
+                        <div class="sub">Margem média: 100.0%</div>
+                    </div>
+                    <div class="card">
+                        <h3>📦 Produtos</h3>
+                        <div class="valor">67</div>
+                        <div class="sub">produtos únicos</div>
+                    </div>
+                    <div class="card">
+                        <h3>👥 Clientes</h3>
+                        <div class="valor">18</div>
+                        <div class="sub">clientes ativos</div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h2>🏆 Top 10 Produtos por Faturamento</h2>
+                        <canvas id="graficoProdutos" style="max-height: 300px;"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h2>👥 Top 10 Clientes por Faturamento</h2>
+                        <canvas id="graficoClientes" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+
+                <div class="tabela-container">
+                    <h2>🏆 Top 20 Produtos Mais Vendidos</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Descrição</th>
+                                <th>Quantidade</th>
+                                <th>Faturamento</th>
+                                <th>Custo</th>
+                                <th>Lucro</th>
+                                <th>Margem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        
+                            <tr>
+                                <td><strong>0006000001</strong></td>
+                                <td>RS - CART. TONER COMP. TK-3180/3182 21K BK - SMART</td>
+                                <td>50</td>
+                                <td>R$ 3,468.50</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 3,468.50</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>60000000114</strong></td>
+                                <td>RS - CART. TONER COMP. MLT-D358S 25K BK - SMART OU</td>
+                                <td>12</td>
+                                <td>R$ 2,094.46</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 2,094.46</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>0001000093</strong></td>
+                                <td>SC - CART. TONER COMP. D203U/M3320/3370/3820 15K B</td>
+                                <td>37</td>
+                                <td>R$ 1,968.52</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 1,968.52</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>0001100085</strong></td>
+                                <td>SC - CART. TONER COMP. CB435/436/285/278 2K BK - S</td>
+                                <td>100</td>
+                                <td>R$ 1,505.00</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 1,505.00</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>5000227233</strong></td>
+                                <td>RS - CART. TONER COMP. TN3472/TN880 12K BK - SMART</td>
+                                <td>45</td>
+                                <td>R$ 1,498.13</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 1,498.13</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>60000000015</strong></td>
+                                <td>SC - CART. TONER COMP. PHASER 3330/3345 (106R03623</td>
+                                <td>32</td>
+                                <td>R$ 1,412.80</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 1,412.80</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>60000000281</strong></td>
+                                <td>SC - CART. TONER COMP. W1030X/W1510X 9.7K - SMART </td>
+                                <td>30</td>
+                                <td>R$ 1,347.00</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 1,347.00</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>60000000179</strong></td>
+                                <td>RS - CART. TONER COMP. TK3432 21K BK - SMART OUTSO</td>
+                                <td>10</td>
+                                <td>R$ 1,200.04</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 1,200.04</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>60000000056</strong></td>
+                                <td>RS - CART. TONER COMP. SP3710 10K BK - SMART OUTSO</td>
+                                <td>20</td>
+                                <td>R$ 1,118.96</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 1,118.96</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>5000227235</strong></td>
+                                <td>RS - UNIDADE DE IMAGEM DR TN3442 TN3472 TN3492 DR3</td>
+                                <td>25</td>
+                                <td>R$ 796.36</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 796.36</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>5000229376</strong></td>
+                                <td>RJ - CART. TONER COMP. ES5112 ES4132 (45807129) 12</td>
+                                <td>9</td>
+                                <td>R$ 756.00</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 756.00</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>60000000246</strong></td>
+                                <td>MI - UNIDADE DE FUSAO COMP. PANTUM P3010 P3300 P33</td>
+                                <td>2</td>
+                                <td>R$ 736.08</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 736.08</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>5000227917</strong></td>
+                                <td>GO - CILINDRO USO BROTHER TN850/880/890/3440 - SMT</td>
+                                <td>50</td>
+                                <td>R$ 683.10</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 683.10</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>5000227455</strong></td>
+                                <td>RS - CART. TONER COMP. T06/OS603 (CBT-IR1643) 20K </td>
+                                <td>5</td>
+                                <td>R$ 560.40</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 560.40</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>0001000078</strong></td>
+                                <td>SC - CART. TONER COMP. TN580/TN650 8K BK - SMART O</td>
+                                <td>18</td>
+                                <td>R$ 552.15</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 552.15</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>5000229374</strong></td>
+                                <td>RS - CART. TONER COMP. CLT506L/CLP680 3.5K C - SMA</td>
+                                <td>8</td>
+                                <td>R$ 541.52</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 541.52</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>60000000101</strong></td>
+                                <td>PT - CART. TONER ORIGINAL TL-5120XP - 15K PANTUM</td>
+                                <td>2</td>
+                                <td>R$ 540.20</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 540.20</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>5000227677</strong></td>
+                                <td>SC - CART. TONER COMP. CE390X/CC364X 24K BK - SMAR</td>
+                                <td>6</td>
+                                <td>R$ 534.60</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 534.60</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>5000229329</strong></td>
+                                <td>SP - CHIP HP W2020/414X/M454/M479/M455 BK 7.5K</td>
+                                <td>4</td>
+                                <td>R$ 519.12</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 519.12</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                            <tr>
+                                <td><strong>60000000048</strong></td>
+                                <td>RS - CART. TONER COMP. W2023X 414X M 6K - SMART OU</td>
+                                <td>4</td>
+                                <td>R$ 489.16</td>
+                                <td>R$ 0.00</td>
+                                <td class="positivo">R$ 489.16</td>
+                                <td>100.0%</td>
+                            </tr>
+            
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-adicional">
+                    <div class="tabela-container">
+                        <h2>👥 Top 10 Clientes por Faturamento</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Faturamento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+        
+                                <tr>
+                                    <td>SEGMENTO DIGITAL COMERCIO LTDA</td>
+                                    <td>R$ 4,734.49</td>
+                                </tr>
+            
+                                <tr>
+                                    <td>MIAMI TECNOLOGIA LTDA</td>
+                                    <td>R$ 3,468.50</td>
+                                </tr>
+            
+                                <tr>
+                                    <td>COMABE AUTOMACAO DE ESCRITORIOS LTDA</td>
+                                    <td>R$ 2,995.32</td>
+                                </tr>
+            
+                                <tr>
+                                    <td>LOCARTEK SERVICOS DE LOCACAO LTDA</td>
+                                    <td>R$ 2,879.50</td>
+                                </tr>
+            
+                                <tr>
+                                    <td>17.769.378 HARLLEY VELOSO PEIXOTO</td>
+                                    <td>R$ 2,697.10</td>
+                                </tr>
+            
+                                <tr>
+                                    <td>S.S.A - COMERCIO E ASSISTENCIA TECNICA LTDA</td>
+                                    <td>R$ 2,544.40</td>
+                                </tr>
+            
+                                <tr>
+                                    <td>SWT TELEINFORMATICA E MANUTENCAO LTDA</td>
+                                    <td>R$ 2,215.36</td>
+                                </tr>
+            
+                                <tr>
+                                    <td>DENIS CLAUDIO SOARES CPF 783.732.986-49</td>
+                                    <td>R$ 1,550.74</td>
+                                </tr>
+            
+                                <tr>
+                                    <td>NEW DIGITAL LTDA - ME</td>
+                                    <td>R$ 1,547.98</td>
+                                </tr>
+            
+                                <tr>
+                                    <td>TECNOTONER CARTUCHOS PARA IMPRESSORAS LTDA.</td>
+                                    <td>R$ 1,412.80</td>
+                                </tr>
+            
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tabela-container">
+                        <h2>📊 Estatísticas Gerais</h2>
+                        <table>
+                            <tr><th>Métrica</th><th>Valor</th></tr>
+        
+                            <tr><td>Ticket Médio por Item</td><td>R$ 413.63</td></tr>
+                            <tr><td>Média de Itens por Nota</td><td>3.8</td></tr>
+                            <tr><td>Faturamento Médio por Nota</td><td>R$ 1,551.11</td></tr>
+                            <tr><td>Produto Mais Vendido (Qtd)</td><td>0001100085</td></tr>
+                            <tr><td>Cliente Top</td><td>SEGMENTO DIGITAL COMERCIO LTDA</td></tr>
+        
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                // Gráfico de produtos
+                const ctxProdutos = document.getElementById('graficoProdutos').getContext('2d');
+                new Chart(ctxProdutos, {
+                    type: 'bar',
+                    data: {
+                        labels: ['0006000001','60000000114','0001000093','0001100085','5000227233','60000000015','60000000281','60000000179','60000000056','5000227235'],
+                        datasets: [{
+                            label: 'Faturamento (R$)',
+                            data: [3468.5,2094.46,1968.52,1505.0,1498.13,1412.8,1347.0,1200.04,1118.96,796.36],
+                            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'R$ ' + value.toLocaleString('pt-BR');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Gráfico de clientes
+                const ctxClientes = document.getElementById('graficoClientes').getContext('2d');
+                new Chart(ctxClientes, {
+                    type: 'pie',
+                    data: {
+                        labels: ['SEGMENTO DIGITAL COM...','MIAMI TECNOLOGIA LTD...','COMABE AUTOMACAO DE ...','LOCARTEK SERVICOS DE...','17.769.378 HARLLEY V...','S.S.A - COMERCIO E A...','SWT TELEINFORMATICA ...','DENIS CLAUDIO SOARES...','NEW DIGITAL LTDA - M...','TECNOTONER CARTUCHOS...'],
+                        datasets: [{
+                            data: [4734.49,3468.5,2995.3199999999997,2879.5,2697.1,2544.4,2215.36,1550.74,1547.9799999999998,1412.8],
+                            backgroundColor: [
+                                'rgba(102, 126, 234, 0.8)',
+                                'rgba(118, 75, 162, 0.8)',
+                                'rgba(255, 99, 132, 0.8)',
+                                'rgba(54, 162, 235, 0.8)',
+                                'rgba(255, 206, 86, 0.8)',
+                                'rgba(75, 192, 192, 0.8)',
+                                'rgba(153, 102, 255, 0.8)',
+                                'rgba(255, 159, 64, 0.8)',
+                                'rgba(199, 199, 199, 0.8)',
+                                'rgba(83, 102, 255, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        let value = context.raw;
+                                        let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        let percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: R$ ${value.toLocaleString('pt-BR')} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </body>
+        </html>
+        
