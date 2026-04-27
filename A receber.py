@@ -317,7 +317,7 @@ def painel():
 # =============================
 if __name__ == "__main__":
     print("🔥 Servidor iniciando...")
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8080))
 
     # 🔥 NOVO - MOSTRAR LINK
     print(f"🌐 Acesse: http://localhost:{port}/login")
