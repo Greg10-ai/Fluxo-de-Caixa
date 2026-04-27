@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session, redirect
 import threading
 import traceback
 
@@ -18,6 +18,13 @@ import urllib3
 app = Flask(__name__)
 
 API_TOKEN = "123456"
+
+# 🔐 NOVO - SECRET KEY (necessário para login)
+app.secret_key = "super_secret_key_123"
+
+# 🔐 NOVO - CREDENCIAIS DE LOGIN
+USUARIO = "admin"
+SENHA = "1234"
 
 urllib3.disable_warnings()
 
@@ -41,11 +48,39 @@ data_filtro = datetime.strptime(DATA_INICIAL, "%d/%m/%Y")
 CREDENTIALS_FILE = "credentials.json"
 
 # =============================
-# 🔎 ROTA BASE (NOVO)
+# 🔎 ROTA BASE
 # =============================
 @app.route("/")
 def home():
-    return "API rodando!"
+    return redirect ("/login")
+
+# =============================
+# 🔐 LOGIN (NOVO)
+# =============================
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        usuario = request.form.get("usuario")
+        senha = request.form.get("senha")
+
+        if usuario == USUARIO and senha == SENHA:
+            session["logado"] = True
+            return redirect("/painel")
+        else:
+            return "❌ Login inválido"
+
+    return """
+    <h2>Login</h2>
+    <form method="POST">
+        Usuário: <input type="text" name="usuario"><br><br>
+        Senha: <input type="password" name="senha"><br><br>
+        <button type="submit">Entrar</button>
+    </form>
+    """
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 
 # =============================
 # AUTENTICAÇÃO GOOGLE (MANTIDO)
@@ -79,7 +114,7 @@ def autenticar_google():
 # =============================
 def buscar_dados_sap():
     print("\n1️⃣ Conectando ao SAP...")
-    session = requests.Session()
+    session_req = requests.Session()
     
     login_payload = {
         "CompanyDB": COMPANY_DB,
@@ -88,7 +123,7 @@ def buscar_dados_sap():
     }
     
     try:
-        response = session.post(LOGIN_URL, json=login_payload, verify=False)
+        response = session_req.post(LOGIN_URL, json=login_payload, verify=False)
         if response.status_code != 200:
             raise Exception(f"Erro HTTP: {response.status_code}")
         print("   ✅ Login SAP OK")
@@ -104,7 +139,7 @@ def buscar_dados_sap():
         url = f"{QUERY_URL}?$skip={skip}"
         
         try:
-            response = session.get(url, verify=False)
+            response = session_req.get(url, verify=False)
             
             if response.status_code != 200:
                 break
@@ -203,7 +238,7 @@ def executar_background():
         traceback.print_exc()
 
 # =============================
-# ENDPOINT (MANTIDO + LOG)
+# ENDPOINT (MANTIDO)
 # =============================
 @app.route("/executar", methods=["GET"])
 def executar():
@@ -222,42 +257,27 @@ def executar():
         "mensagem": "Execução iniciada"
     })
 
+# =============================
+# 🔐 PAINEL PROTEGIDO
+# =============================
 @app.route("/painel")
 def painel():
+    if not session.get("logado"):
+        return redirect("/login")
+
     return """
     <!DOCTYPE html>
     <html>
     <head>
         <title>Painel SAP</title>
-        <style>
-            body {
-                font-family: Arial;
-                text-align: center;
-                margin-top: 50px;
-            }
-            button {
-                padding: 15px 30px;
-                font-size: 18px;
-                background-color: #28a745;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-            button:hover {
-                background-color: #218838;
-            }
-            #status {
-                margin-top: 20px;
-                font-size: 16px;
-            }
-        </style>
     </head>
     <body>
 
         <h1>🚀 Integração SAP → Google Sheets</h1>
 
         <button onclick="executar()">Iniciar Processo</button>
+        <br><br>
+        <a href="/logout">Sair</a>
 
         <div id="status"></div>
 
@@ -291,10 +311,15 @@ def painel():
     </body>
     </html>
     """
+
 # =============================
 # START
 # =============================
 if __name__ == "__main__":
     print("🔥 Servidor iniciando...")
     port = int(os.environ.get("PORT", 5000))
-app.run(host="0.0.0.0", port=port)
+
+    # 🔥 NOVO - MOSTRAR LINK
+    print(f"🌐 Acesse: http://localhost:{port}/login")
+
+    app.run(host="0.0.0.0", port=port)

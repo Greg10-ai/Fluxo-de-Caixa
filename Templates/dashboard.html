@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Painel de Gestão</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: #0b1f3a;
+    color: white;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    background: #071a2f;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* MENU */
+.menu-item {
+    margin-bottom: 10px;
+}
+
+.menu-title {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 6px;
+    color: #9db3cc;
+}
+
+.menu-title:hover {
+    background: #0f2e52;
+    color: white;
+}
+
+/* SUBMENU */
+.submenu {
+    display: none;
+    margin-left: 10px;
+}
+
+.submenu a {
+    display: block;
+    padding: 8px;
+    color: #9db3cc;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.submenu a:hover {
+    background: #0f2e52;
+    color: white;
+}
+
+/* MAIN */
+.main {
+    margin-left: 270px;
+    padding: 20px;
+}
+
+/* CARDS */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.card {
+    background: #112e4e;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.card h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #9db3cc;
+}
+
+.card h2 {
+    margin-top: 10px;
+}
+
+/* GRÁFICO */
+.chart-box {
+    margin-top: 20px;
+    background: #112e4e;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* DIREITA */
+.right {
+    position: fixed;
+    right: 20px;
+    top: 120px;
+    width: 280px;
+}
+
+.sale {
+    background: #112e4e;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>3i Distribuidora</h2>
+
+    <div class="menu-item">
+        <div class="menu-title" onclick="toggleMenu(this)">🏠 Início</div>
+    </div>
+
+    <div class="menu-item">
+        <div class="menu-title" onclick="toggleMenu(this)">📊 Controladoria</div>
+        <div class="submenu">
+            <a href="#">DRE</a>
+            <a href="#">Balanço Patrimonial</a>
+            <a href="#">DFC</a>
+            <a href="#">Lucro Bruto</a>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <div class="menu-title" onclick="toggleMenu(this)">💰 Financeiro</div>
+        <div class="submenu">
+            <a href="#">Contas a Receber</a>
+            <a href="#">Contas a Pagar</a>
+            <a href="#">Vencidos</a>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <div class="menu-title" onclick="toggleMenu(this)">👥 Recursos Humanos</div>
+        <div class="submenu">
+            <a href="#">Folha</a>
+            <a href="#">Recibos</a>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <h1>Painel de Gestão</h1>
+
+    <div class="cards">
+        <div class="card">
+            <h4>Receita Total</h4>
+            <h2>R$ 45.800</h2>
+        </div>
+
+        <div class="card">
+            <h4>Pedidos</h4>
+            <h2>1.248</h2>
+        </div>
+
+        <div class="card">
+            <h4>Novos Clientes</h4>
+            <h2>324</h2>
+        </div>
+
+        <div class="card">
+            <h4>Ticket Médio</h4>
+            <h2>R$ 367</h2>
+        </div>
+    </div>
+
+    <div class="chart-box">
+        <h3>Receita Mensal</h3>
+        <canvas id="chart"></canvas>
+    </div>
+</div>
+
+<div class="right">
+    <h3>Vendas Recentes</h3>
+
+    <div class="sale">Maria Silva - R$ 1.290</div>
+    <div class="sale">João Santos - R$ 3.500</div>
+    <div class="sale">Ana Costa - R$ 490</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+function toggleMenu(element) {
+    const submenu = element.nextElementSibling;
+
+    if (!submenu) return;
+
+    submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+}
+
+const ctx = document.getElementById('chart');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+        datasets: [{
+            label: 'Receita',
+            data: [15000,18000,16000,22000,26000,21000,28000,31000,29000,35000,38000,42000],
+            borderColor: '#4ea8ff',
+            tension: 0.4
+        }]
+    }
+});
+</script>
+
+</body>
+</html>
