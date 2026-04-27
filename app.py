@@ -330,4 +330,10 @@ if __name__ == "__main__":
     
     port = int(os.environ.get("PORT", 5000))  # 👈 ESSENCIAL
 
+<<<<<<< HEAD:app.py
     app.run(host="0.0.0.0", port=port)
+=======
+    print(f"🌐 Acesse: http://localhost:{port}/login")
+
+    app.run(host="0.0.0.0", port=port)
+>>>>>>> 1c3f202 (fix: corrige deploy railway):A receber.py
