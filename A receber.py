@@ -86,29 +86,39 @@ def logout():
 # AUTENTICAÇÃO GOOGLE (MANTIDO)
 # =============================
 def autenticar_google():
-    if not os.path.exists(CREDENTIALS_FILE):
-        print(f"\n❌ Arquivo não encontrado: {CREDENTIALS_FILE}")
-        return None
-    
     try:
         scopes = [
             'https://www.googleapis.com/auth/spreadsheets',
             'https://www.googleapis.com/auth/drive'
         ]
-        
-        creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scopes)
-        client = gspread.authorize(creds)
-        
-        with open(CREDENTIALS_FILE, 'r') as f:
-            data = json.load(f)
-            print(f"   📧 Autenticado como: {data['client_email']}")
-        
-        return client
-        
-    except Exception as e:
-        print(f"   ❌ Erro na autenticação: {e}")
-        return None
 
+        # 🔐 TENTA USAR VARIÁVEL DE AMBIENTE (RAILWAY)
+        creds_json = os.getenv("GOOGLE_CREDENTIALS")
+
+        if creds_json:
+            try:
+                creds_dict = json.loads(creds_json)
+                creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+                print("🌐 Usando credenciais do ambiente")
+            except Exception as e:
+                print("❌ Erro ao ler GOOGLE_CREDENTIALS:", e)
+                return None
+
+        else:
+            # 💻 FALLBACK LOCAL
+            if not os.path.exists(CREDENTIALS_FILE):
+                print(f"❌ Arquivo não encontrado: {CREDENTIALS_FILE}")
+                return None
+
+            creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scopes)
+            print("💻 Usando credentials.json local")
+
+        client = gspread.authorize(creds)
+        return client
+
+    except Exception as e:
+        print(f"❌ Erro geral na autenticação: {e}")
+        return None
 # =============================
 # BUSCAR DADOS DO SAP (MANTIDO)
 # =============================
