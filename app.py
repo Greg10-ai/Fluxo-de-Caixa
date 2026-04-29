@@ -33,7 +33,7 @@ urllib3.disable_warnings()
 # =============================
 BASE_URL = "https://b1.ativy.com:51032/b1s/v1"
 LOGIN_URL = f"{BASE_URL}/Login"
-QUERY_URL = f"{BASE_URL}/SQLQueries('Conta_Receber/Filial-1')/List"
+QUERY_URL = f"{BASE_URL}/SQLQueries('Conta_Receber/Filial-2')/List"
 
 COMPANY_DB = "SBO_PRD_INOVASUPRI"
 USERNAME = "3i_0016"
